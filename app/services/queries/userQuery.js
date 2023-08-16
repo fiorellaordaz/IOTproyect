@@ -1,5 +1,6 @@
 const db = require("../mysql");
-const md5 = require("md5");
+const bcrypt= require("bcryptjs")
+const moment = require("moment");
 const utils = require("../../utils/utils");
 
 const userQuery = {};
@@ -27,7 +28,8 @@ userQuery.addUser = async(userData) => {
             name:userData.name,
             surname:userData.surname,
             email:userData.email,
-            password:md5(userData.password)
+            password: await bcrypt.hash(userData.password, 8),
+            registerDate: moment().format("YYYY-MM-DD HH:mm:ss"),
         };
         return await db.query( "INSERT INTO users SET ?", userObj, "insert", conn );
     }catch(err){
@@ -72,7 +74,8 @@ userQuery.updateUser = async (id, userData) => {
             name: userData.name,
             surname: userData.surname,
             email: userData.email,
-            password: userData.password? md5(userData.password):undefined,
+            password: userData.password? bc(userData.password):undefined,
+            modificationDate: moment().format("YYYY-MM-DD HH:mm:ss"),
         }
         console.log(userObj);
         userObj = await utils.removeUndefinedKeys(userObj);

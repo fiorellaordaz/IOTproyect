@@ -15,7 +15,7 @@ const options ={
             }
         ]
     },
-    apis: ["app/routes/userRoute.js","app/services/mysql.js"],
+    apis: ["./app/routes/userRoute.js"],
 };
 
 const swaggerSpec = swagger_doc(options);

@@ -1,4 +1,4 @@
-const md5 = require("md5");
+const bcrypt = require("bcryptjs")
 const dao = require("../services/dao");
 const { SignJWT, jwtVerify } = require("jose");
 
@@ -32,14 +32,13 @@ userController.loginUser = async (req, res) => {
     try{
         const user = await dao.getUserByEmail(email);
         if(user.length === 0) return res.sendStatus(404);
-        if(user[0].password !== md5(password)) return res.sendStatus(401);
-        
+        let compare = bcrypt.compare(password, user[0].password)
+        if(compare === false) return res.sendStatus(401);
         const jwtConstructor = new SignJWT({
             id: user[0].id,
             name:user[0].name,
             email: user[0].email,
         });
-
         const encoder = new TextEncoder();
         const token = await jwtConstructor
         .setProtectedHeader({alg:"HS256", typ:"JWT"})
@@ -92,6 +91,25 @@ userController.updateUser = async(req,res) => {
     }catch(err){
         console.log(err.message);
         throw new Error(err)
+    };
+}
+
+userController.verifyToken = async (req, res) => {
+    const {id} = req.params
+    const { authorization } = req.headers;
+
+    if (!authorization) return res.sendStatus(401);
+    const token = authorization.split(" ")[1];
+    try {
+        const encoder = new TextEncoder();
+        const { payload } = await jwtVerify(
+            token,
+            encoder.encode(process.env.JWT_SECRET)
+        );
+        res.json({ valid: true });
+    } catch (err) {
+        console.log(err.message);
+        res.json({ valid: false });
     };
 }
 
