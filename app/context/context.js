@@ -95,6 +95,21 @@ Prices_control.init({
     freezeTableName: true
 });
 
+class Dispositivos extends Model {};
+Dispositivos.init({
+    id:{
+        type: DataTypes.INTEGER,
+        primaryKey:true,
+        autoIncrement: true,
+        allowNull: false,
+    },
+    name:{
+        type: DataTypes.STRING,
+        allowNull:false,
+    },
+    
+})
+
 
 Role.hasMany(Users, {as:'user', foreignKey:'idRole'});
 Users.belongsTo(Role,{foreignKey:'idRole'});
