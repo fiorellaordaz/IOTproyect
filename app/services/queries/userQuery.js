@@ -1,93 +1,84 @@
-const db = require("../mysql");
-const bcrypt= require("bcryptjs")
+const bcrypt = require("bcryptjs");
 const moment = require("moment");
+const {Users} = require("../../context/context");
 const utils = require("../../utils/utils");
 
 const userQuery = {};
 
-userQuery.getUserByEmail = async (email) => {
-    let conn = null;
+userQuery.getUserByEmail = async(email) => {
+    let user;
     try{
-        conn = await db.createConnection();
-        return await db.query(
-            "SELECT * FROM users WHERE email = ?", email, "select", conn
-        );
-    }catch(err){
-        throw new Error(err);
-    }finally{
-        conn && await conn.end();
-    }
-};
-
-userQuery.addUser = async(userData) => {
-
-    let conn = null;
-    try{
-        conn = await db.createConnection();
-        let userObj ={
-            name:userData.name,
-            surname:userData.surname,
-            email:userData.email,
-            password: await bcrypt.hash(userData.password, 8),
-            registerDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+        user = await Users.findOne({ where: {email:email} });
+        if(user === null){
+            console.log('Not found!');
+        }else {
+            return user;
         };
-        return await db.query( "INSERT INTO users SET ?", userObj, "insert", conn );
+    }catch(err){
+        throw new Error
+    }
+};
+
+userQuery.addUser = async(dataUser) => {
+    let add;
+    try{
+        add = await Users.build({
+        name: dataUser.name,
+        surname: dataUser.surname,
+        email: dataUser.email,
+        password: await bcrypt.hash(dataUser.password, 8),
+        registerDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    await add.save();
     }catch(err){
         throw new Error(err);
-    }finally{
-        conn && await conn.end();
     }
 };
 
-userQuery.getUserById = async (id) => {
-    let conn = null;
+userQuery.getUserById = async(id) => {
+    let userId;
     try{
-        conn = await db.createConnection();
-        return await db.query("SELECT * FROM users WHERE id= ?", id, "select", conn
-        );
+        userId= await Users.findOne({ where : {id: id} });
+        if(userId === null){
+            console.log('Not found!');
+        }else {
+            return userId;
+        };
     }catch(err){
-        throw new Error(err)
-    }finally{
-        conn && await conn.end();
-    }
+        throw new Error(err);
+    };
 };
 
-userQuery.deleteUser = async (id) => {
-    let conn = null;
+userQuery.deleteUser = async (id) =>{
+    let deleteUser;
     try{
-        conn = await db.createConnection();
-        return await db.query(
-            "DELETE FROM users WHERE id = ?", id, "delete", conn
-        );
+        deleteUser = await Users.destroy({ where: { id:id} });
+        if(deleteUser === null){
+            console.log('Not found!');
+        }else {
+            return deleteUser;
+        };
     }catch(err){
-        throw new Error(err)
-    }finally{
-        conn && await conn.end();
+        throw new Error(err);
     }
 };
 
 userQuery.updateUser = async (id, userData) => {
-    let conn = null;
+    let update;
     try{
-        conn = await db.createConnection();
-        let userObj={
+        update= await Users.update({
             name: userData.name,
             surname: userData.surname,
             email: userData.email,
-            password: userData.password? bc(userData.password):undefined,
-            modificationDate: moment().format("YYYY-MM-DD HH:mm:ss"),
-        }
-        console.log(userObj);
-        userObj = await utils.removeUndefinedKeys(userObj);
-        return await db.query("UPDATE users SET ? where id = ?", [userObj, id], "update", conn);
+            password: userData.password? bcrypt.hash(userData.password, 8): undefined,
+            modificationDate: moment().format("YYYY-MM-DD HH:mm:ss")
+            },
+            {where:{ id:id }});
+        update = await utils.removeUndefinedKeys(update);
     }catch(err){
-        console.log(err.message);
         throw new Error(err);
-    }finally{
-        conn && await conn.end();
     }
-}
+};
 
 
-
-module.exports = userQuery;
+module.exports= userQuery;
