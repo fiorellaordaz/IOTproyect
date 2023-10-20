@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const moment = require("moment");
-const {Users} = require("../../context/context");
+const {Users, Devices} = require("../../context/context");
 const utils = require("../../utils/utils");
 
 const userQuery = {};
@@ -9,11 +9,7 @@ userQuery.getUserByEmail = async(email) => {
     let user;
     try{
         user = await Users.findOne({ where: {email:email} });
-        if(user === null){
-            console.log('Not found!');
-        }else {
-            return user;
-        };
+        return (user === null) ? console.log('Not found!') : user;
     }catch(err){
         throw new Error
     }
@@ -22,7 +18,7 @@ userQuery.getUserByEmail = async(email) => {
 userQuery.addUser = async(dataUser) => {
     let add;
     try{
-        add = await Users.build({
+        add = Users.build({
         name: dataUser.name,
         surname: dataUser.surname,
         email: dataUser.email,
@@ -39,29 +35,39 @@ userQuery.getUserById = async(id) => {
     let userId;
     try{
         userId= await Users.findOne({ where : {id: id} });
-        if(userId === null){
-            console.log('Not found!');
-        }else {
-            return userId;
-        };
+        return (userId === null) ? console.log('Not found!') : userId;
     }catch(err){
         throw new Error(err);
     };
 };
 
-userQuery.deleteUser = async (id) =>{
+userQuery.deleteUser = async (id, activo) =>{
     let deleteUser;
     try{
-        deleteUser = await Users.destroy({ where: { id:id} });
-        if(deleteUser === null){
-            console.log('Not found!');
-        }else {
-            return deleteUser;
-        };
+        deleteUser = await Users.update({
+            activo:activo,
+        }, 
+        {where:{id:id}});
+        deleteUser = await utils.removeUndefinedKeys(deleteUser);
     }catch(err){
         throw new Error(err);
     }
 };
+
+userQuery.deleteDevForUser = async (id, activo) =>{
+    let deleteUser;
+    try{
+        deleteUser = await Devices.update({
+            activo:activo,
+        }, 
+        {where:{id:id}});
+        deleteUser = await utils.removeUndefinedKeys(deleteUser);
+    }catch(err){
+        throw new Error(err);
+    }
+};
+
+
 
 userQuery.updateUser = async (id, userData) => {
     let update;

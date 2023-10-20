@@ -17,21 +17,21 @@ utils.removeUndefinedKeys = async (obj) => {
     }
 };
 
-utils.verifyToken = async (id, authorization) => {
+// utils.verifyToken = async (id, authorization) => {
 
-    if (!authorization) return res.sendStatus(401);
-    const token = authorization.split(" ")[1];
-    try {
-        const encoder = new TextEncoder();
-        const { payload } = await jwtVerify(
-            token,
-            encoder.encode(process.env.JWT_SECRET)
-        );
-        if(payload.id !== id) return true;
-    } catch (err) {
-        console.log(err.message);
-        throw new Error(err);
-    };
-};
+//     if (!authorization) return res.sendStatus(401);
+//     const token = authorization.split(" ")[1];
+//     try {
+//         const encoder = new TextEncoder();
+//         const { payload } = await jwtVerify(
+//             token,
+//             encoder.encode(process.env.JWT_SECRET)
+//         );
+//         if(payload.id !== id) return true;
+//     } catch (err) {
+//         console.log(err.message);
+//         throw new Error(err);
+//     };
+// };
 
 module.exports = utils;

@@ -2,10 +2,10 @@
 const {Sequelize} = require("sequelize")
 
 
-const sequelize = new Sequelize('energyWise', 'root', 'malaga01', {
-    host: 'localhost',
-    dialect: 'mysql',
-    port:'3306'
+const sequelize = new Sequelize('EnergyWise', 'energywiseadmin', 'Tugemijj92', {
+    host: 'energywise.database.windows.net',
+    dialect: 'mssql',
+    port:'1433'
 });
 
 
